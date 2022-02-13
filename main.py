@@ -3,7 +3,6 @@ import time
 from datetime import datetime
 
 import requests
-from config import *
 
 
 def calc_length(length: int) -> str:
@@ -15,10 +14,10 @@ def calc_length(length: int) -> str:
     return f"{hours}{minutes}:{seconds}"
 
 
-def do_notify(key: str):
+def do_notify(key: str, webhook: str, message: str):
     metadata = requests.get(f"https://api.mixcloud.com{key}").json()
     payload = {
-        "content": PO_NEW_SHOW,
+        "content": message,
         "embeds": [
             {
                 "title": metadata["name"] if "name" in metadata else "",
@@ -36,8 +35,8 @@ def do_notify(key: str):
                     }
                 ],
                 "author": {
-                    "name": MIXCLOUD_USER,
-                    "url": f"https://www.mixcloud.com/{MIXCLOUD_USER}",
+                    "name": metadata["user"]["name"] if "user" in metadata and "name" in metadata["user"] else "Unknown",
+                    "url": f"https://www.mixcloud.com/{metadata['user']['url'] if 'user' in metadata and 'url' in metadata['user'] else ''}",
                     "icon_url": metadata["user"]["pictures"]["small"] if "user" in metadata and "pictures" in metadata["user"] and "small" in metadata["user"]["pictures"] else None
                 },
                 "footer": {
@@ -50,30 +49,36 @@ def do_notify(key: str):
             }
         ]
     }
-    requests.post(DISCORD_WEBHOOK_URL, data=json.dumps(payload), headers={"Content-Type": "application/json;charset=UTF-8"})
+    requests.post(webhook, data=json.dumps(payload), headers={"Content-Type": "application/json;charset=UTF-8"})
     time.sleep(2)
 
 
 def main():
-    try:
-        with open("known.shows", "r") as f:
-            known_shows = f.read().split("\n")
-    except IOError:
-        known_shows = []
+    with open("config.json", "r") as f:
+        config = json.load(f)
 
-    to_notify = []
-    feed = requests.get(f"https://api.mixcloud.com/{MIXCLOUD_USER}/cloudcasts/").json()
-    for cloudcast in feed["data"]:
-        if cloudcast["key"] not in known_shows:
-            to_notify.append(cloudcast["key"])
-            known_shows.append(cloudcast["key"])
+    message_new_show = config["messages"]["new_show"]
+    targets = config["targets"]
+    for target in targets:
+        url = target["target"].replace("mixcloud.com", "api.mixcloud.com")
+        try:
+            with open("knownshows-" + str(hash(url)) + ".dat", "r") as f:
+                known_shows = f.read().split("\n")
+        except IOError:
+            known_shows = []
+        to_notify = []
+        feed = requests.get(f"{url}/cloudcasts/").json()
+        for cloudcast in feed["data"]:
+            if cloudcast["key"] not in known_shows:
+                to_notify.append(cloudcast["key"])
+                known_shows.append(cloudcast["key"])
 
-    to_notify.reverse()
-    for key in to_notify:
-        do_notify(key)
+        to_notify.reverse()
+        for key in to_notify:
+            do_notify(key, target["webhook"], message_new_show)
 
-    with open("known.shows", "w") as f:
-        f.write("\n".join(known_shows))
+        with open("knownshows-" + str(hash(url)) + ".dat", "w") as f:
+            f.write("\n".join(known_shows))
 
 
 if __name__ == "__main__":

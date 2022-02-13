@@ -7,11 +7,11 @@ Absolutely most basic type of integration. No error handling. Use on your own.
 
 ## Configuration
 
-Copy ``config.template.py`` into ``config.py`` and setup:
+Copy ``config.template.json`` into ``config.json`` and setup:
 
-* ``DISCORD_WEBHOOK_URL``: URL for the Discord webhook that should be notified (create a channel on Discord > Edit channel > Integrations > New webhook > Copy Webhook URL)
-* ``MIXCLOUD_USER``: username to watch on Mixcloud
-* ``PO_NEW_SHOW``: message to add before the webhook embed
+* ``messages.newshow``: Message to add before the webhook embeds
+* ``targets[*].target``: URL to either a user or playlist in Mixcloud (https://mixcloud.com/user or https://mixcloud.com/user/playlists/playlist)
+* ``targets[*].webhook``: URL for the Discord webhook that should be notified (create a channel on Discord > Edit channel > Integrations > New webhook > Copy Webhook URL)
 
 ## Does it work with other webhooks (slack etc)?
 

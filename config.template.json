@@ -1,0 +1,15 @@
+{
+  "messages": {
+    "new_show": "New show uploaded to Mixcloud:"
+  },
+  "targets": [
+    {
+      "target": "https://mixcloud.com/username",
+      "webhook": "discord webhook url 1"
+    },
+    {
+      "target": "https://mixcloud.com/username/playlists/playlist-name",
+      "webhook": "discord webhook url 2"
+    }
+  ]
+}

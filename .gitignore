@@ -129,5 +129,5 @@ dmypy.json
 .pyre/
 
 .idea
-config.py
-known.shows
+config.json
+knownshows-*.dat
