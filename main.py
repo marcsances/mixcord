@@ -61,7 +61,7 @@ def main():
     message_new_show = config["messages"]["new_show"]
     targets = config["targets"]
     for target in targets:
-        url = target["target"].replace("mixcloud.com", "api.mixcloud.com")
+        url = target["target"].replace("mixcloud.com", "api.mixcloud.com").replace("www.", "")
         try:
             with open("knownshows-" + str(hashlib.md5(url.encode()).hexdigest()) + ".dat", "r") as f:
                 known_shows = f.read().split("\n")
