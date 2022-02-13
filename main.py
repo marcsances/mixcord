@@ -61,11 +61,16 @@ def main():
     except IOError:
         known_shows = []
 
+    to_notify = []
     feed = requests.get(f"https://api.mixcloud.com/{MIXCLOUD_USER}/cloudcasts/").json()
     for cloudcast in feed["data"]:
         if cloudcast["key"] not in known_shows:
-            do_notify(cloudcast["key"])
+            to_notify.append(cloudcast["key"])
             known_shows.append(cloudcast["key"])
+
+    to_notify.reverse()
+    for key in to_notify:
+        do_notify(key)
 
     with open("known.shows", "w") as f:
         f.write("\n".join(known_shows))
