@@ -1,3 +1,4 @@
+import hashlib
 import json
 import time
 from datetime import datetime
@@ -62,7 +63,7 @@ def main():
     for target in targets:
         url = target["target"].replace("mixcloud.com", "api.mixcloud.com")
         try:
-            with open("knownshows-" + str(hash(url)) + ".dat", "r") as f:
+            with open("knownshows-" + str(hashlib.md5(url)) + ".dat", "r") as f:
                 known_shows = f.read().split("\n")
         except IOError:
             known_shows = []
@@ -77,7 +78,7 @@ def main():
         for key in to_notify:
             do_notify(key, target["webhook"], message_new_show)
 
-        with open("knownshows-" + str(hash(url)) + ".dat", "w") as f:
+        with open("knownshows-" + str(hashlib.md5(url)) + ".dat", "w") as f:
             f.write("\n".join(known_shows))
 
 
