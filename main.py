@@ -62,6 +62,8 @@ def main():
     targets = config["targets"]
     for target in targets:
         url = target["target"].replace("mixcloud.com", "api.mixcloud.com").replace("www.", "")
+        if url[-1] == "/":
+            url = url[:-1]
         try:
             with open("knownshows-" + str(hashlib.md5(url.encode()).hexdigest()) + ".dat", "r") as f:
                 known_shows = f.read().split("\n")
